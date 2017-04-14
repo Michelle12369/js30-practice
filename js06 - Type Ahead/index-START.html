@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script>
+    const endpoint =
+      'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+    cities = [];
+    fetch(endpoint) //fetch is an built-in function to fetch data from url
+      .then(blob => blob.json())
+      .then(data => cities.push(...data)); //put data one by one into cites
+
+    function findMatches(wordToMatch,cites){
+      return cities.filter(place=>{
+        //put the filter condition here and the array will be filter with this conditions
+        const regex=new RegExp(wordToMatch,'gi');//create a regular expression that can turn wordToMatch to not case-sensitive
+        return place.city.match(regex)|| place.state.match(regex);//return place
+      });
+    }
+
+    function displayMatched(){
+      const result=findMatches(this.value,cities);
+      const regex=new RegExp(this.value,'gi');
+      const html=result.map(place=>{//map is taking each elements out of array and do the same thing
+        //so write what you want to do to every elements in array below
+        const cityName=place.city.replace(regex,`<span class="hl">${this.value}</span>`);
+        console.log(regex);
+        const stateName=place.state.replace(regex,`<span class="hl">${this.value}</span>`);
+        return `
+          <li>
+            <span class="name">${cityName},${stateName}</span>
+            <span class="population">${place.population}</span>
+          </li>
+        `;
+      }).join('');//turn array elements to string, or else there will be comma between two element in array
+      suggestions.innerHTML=html;
+    }
+    const searchInput=document.querySelector('.search');
+    const suggestions=document.querySelector('.suggestions');
+
+    searchInput.addEventListener('change',displayMatched);
+    searchInput.addEventListener('keyup',displayMatched);
+  </script>
+</body>
+
+</html>
